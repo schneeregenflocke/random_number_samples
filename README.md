@@ -1,3 +1,3 @@
 # random_samples
 
-*(alpha-version/pre-release)*
+*(alpha-version)*
