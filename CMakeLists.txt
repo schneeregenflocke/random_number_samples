@@ -13,13 +13,9 @@ message("CMAKE_CXX_COMPILER_ID: ${CMAKE_CXX_COMPILER_ID}")
 add_executable(random_samples)
 
 
-#if(MSVC)
-#	add_compile_options(/Zc:__cplusplus)
-#else()	
-#endif()
-
-
-target_compile_options(random_samples PRIVATE "-mrdrnd")
+if(${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
+	target_compile_options(random_samples PRIVATE "-mrdrnd")
+endif()
 
 target_compile_definitions(random_samples PRIVATE IMGUI_USER_CONFIG=<ImGui_User_Config.h>)
 
