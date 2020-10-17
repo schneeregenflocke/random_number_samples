@@ -44,22 +44,29 @@ int main(int argc, char *argv[])
 {
 	////////////////////////////////////////////////////////////////////////////////
 	
-	std::vector<std::array<std::string, 2>> licenses(6);
+	std::vector<std::array<std::string, 2>> licenses(7);
 	
 	licenses[0][0] = "random_samples";
 	licenses[0][1] = LOAD_RESOURCE(random_samples_LICENSE).toString();
-	licenses[1][0] = "embed-resource";
-	licenses[1][1] = LOAD_RESOURCE(embed_resource_LICENSE).toString();
+
+	licenses[1][0] = "boost";
+	licenses[1][1] = LOAD_RESOURCE(boost_LICENSE_1_0).toString();
+
 	licenses[2][0] = "glad";
 	licenses[2][1] = LOAD_RESOURCE(glad_LICENSE).toString();
+
 	licenses[3][0] = "glfw";
 	licenses[3][1] = LOAD_RESOURCE(glfw_LICENSE).toString();
+
 	licenses[4][0] = "dear imgui";
 	licenses[4][1] = LOAD_RESOURCE(imgui_LICENSE).toString();
-	licenses[5][0] = "boost";
-	licenses[5][1] = LOAD_RESOURCE(boost_LICENSE_1_0).toString();
 
+	licenses[5][0] = "glm";
+	licenses[5][1] = LOAD_RESOURCE(glm_copying).toString();
 
+	licenses[6][0] = "embed-resource";
+	licenses[6][1] = LOAD_RESOURCE(embed_resource_LICENSE).toString();
+	
 	////////////////////////////////////////////////////////////////////////////////
 
 	GLFW_Interface glfw_interface(1280, 800);

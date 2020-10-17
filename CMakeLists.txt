@@ -17,7 +17,7 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
 	target_compile_options(random_samples PRIVATE "-mrdrnd")
 endif()
 
-target_compile_definitions(random_samples PRIVATE IMGUI_USER_CONFIG=<ImGui_User_Config.h>)
+#target_compile_definitions(random_samples PRIVATE IMGUI_USER_CONFIG=<ImGui_User_Config.h>)
 
 target_include_directories(random_samples PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
@@ -28,6 +28,7 @@ file(GLOB SRC_FILES CONFIGURE_DEPENDS
 
 target_sources(random_samples PUBLIC ${SRC_FILES})
 
+### boost ###
 
 set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost)
@@ -46,43 +47,62 @@ target_link_directories(random_samples PUBLIC ${Boost_LIBRARY_DIRS})
 #target_link_libraries(random_samples PUBLIC ${OPENGL_LIBRARIES})
 #target_include_directories(random_samples PUBLIC ${OPENGL_INCLUDE_DIRS})
 
+### glad ###
 
 set(GLAD_PROFILE "core" CACHE STRING "OpenGL profile" FORCE)
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/submodules/glad")
 target_link_libraries(random_samples PUBLIC glad)
 
 
+### glm ###
+
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/submodules/glm")
+target_link_libraries(random_samples PUBLIC glm)
+
+
+### glfw ###
+
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/submodules/glfw")
 target_link_libraries(random_samples PUBLIC glfw)
 #target_include_directories(random_samples PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui)
 
 
-file(GLOB IM_GUI_SRC CONFIGURE_DEPENDS
-	${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui/*.h 
-	${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui/*.cpp
-	)
+### imgui ###
+
 target_sources(random_samples PUBLIC 
-	${IM_GUI_SRC}
-	${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui/examples/imgui_impl_glfw.h
-	${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui/examples/imgui_impl_glfw.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui/examples/imgui_impl_opengl3.h
-	${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui/examples/imgui_impl_opengl3.cpp)
+	${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui/imgui.h 
+	${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui/imgui.cpp
+
+	${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui/imgui_demo.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui/imgui_draw.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui/imgui_internal.h
+	${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui/imgui_widgets.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui/imstb_rectpack.h
+	${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui/imstb_textedit.h
+	${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui/imstb_truetype.h
+
+	${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui/backends/imgui_impl_glfw.h
+	${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui/backends/imgui_impl_glfw.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui/backends/imgui_impl_opengl3.h
+	${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui/backends/imgui_impl_opengl3.cpp
+	)
 
 target_include_directories(random_samples PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui)
-target_include_directories(random_samples PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui/examples)
+target_include_directories(random_samples PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui/backends)
 
 
-
+### licenses ###
 
 target_include_directories(random_samples PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/submodules/embed-resource")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/submodules/embed-resource")
 
 list(APPEND LICENSE_FILES_PATHS
 	"${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt" random_samples
-	"${CMAKE_CURRENT_SOURCE_DIR}/submodules/embed-resource/LICENSE.txt" "embed-resource"		 
 	"${CMAKE_CURRENT_SOURCE_DIR}/submodules/glad/LICENSE" glad
 	"${CMAKE_CURRENT_SOURCE_DIR}/submodules/glfw/LICENSE.md" glfw
 	"${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui/LICENSE.txt" imgui
+	"${CMAKE_CURRENT_SOURCE_DIR}/submodules/glm/copying.txt" glm
+	"${CMAKE_CURRENT_SOURCE_DIR}/submodules/embed-resource/LICENSE.txt" "embed-resource"
 )
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL Windows)

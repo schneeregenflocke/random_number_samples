@@ -27,6 +27,8 @@ See <https://www.gnu.org/licenses/gpl-2.0.txt>.
 #include <boost/math/distributions.hpp>
 namespace math = boost::math;
 
+#include <glm/glm.hpp>
+
 #include <vector>
 #include <array>
 #include <string>
