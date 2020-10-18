@@ -21,73 +21,223 @@ See <https://www.gnu.org/licenses/gpl-2.0.txt>.
 
 #pragma once
 
-
 #include <imgui.h>
 
-#include <exception>
 #include <cmath>
-#include <initializer_list>
 #include <array>
+#include <initializer_list>
+#include <exception>
 #include <stdexcept>
 
 
-
-class Vec2 : public ImVec2
+template <typename Ty>
+class rect4
 {
 public:
-	Vec2() {}
 
-	Vec2(const ImVec2& vec2) :
-		ImVec2(vec2)
+	rect4() :
+		edges{ 0, 0, 0, 0 }
 	{}
 
-	Vec2(float x, float y) :
-		ImVec2(x, y)
+	rect4(const std::array<Ty, 4>& edges) :
+		edges(edges)
 	{}
 
-	Vec2 operator+(const Vec2& op) const
+	// left, bottom, right, top
+	rect4(const Ty l, const Ty b, const Ty r, const Ty t) :
+		edges{ l, b, r, t }
+	{}
+	
+	rect4(const Ty width, const Ty height)
 	{
-		return Vec2(op.x + x, op.y + y);
+		Ty op = static_cast<Ty>(2);
+		edges[0] = -width / op;
+		edges[1] = -height / op;
+		edges[2] = width / op;
+		edges[3] = height / op;
 	}
 
-	Vec2 operator-(const Vec2& op) const
+	rect4(const glm::vec<2, Ty>& lt, const glm::vec<2, Ty>& rb)
 	{
-		return Vec2(x - op.x, y - op.y);
+		edges[0] = lt.x;
+		edges[1] = rb.y;
+		edges[2] = rb.x;
+		edges[3] = lt.y;
 	}
 
-	Vec2 operator*(const Vec2& op) const
+	// left
+	Ty l() const
 	{
-		return Vec2(op.x * x, op.y * y);
+		return edges[0];
 	}
 
-	Vec2 operator/(const Vec2& op) const
+	// bottom
+	Ty b() const
 	{
-		return Vec2(x / op.x, y / op.y);
+		return edges[1];
 	}
 
-	Vec2 operator*(const float op) const
+	// right
+	Ty r() const
 	{
-		return Vec2(op * x, op * y);
+		return edges[2];
 	}
 
-	Vec2 operator/(const float op) const
+	// top
+	Ty t() const
 	{
-		return Vec2(x / op, y / op);
+		return edges[3];
 	}
 
-	/*float GetIntervalLenght() const
+	// set left
+	void l(const Ty l)
 	{
-		return y - x;
-	}*/
+		edges[0] = l;
+	}
 
-	/*float InterpolateInterval(const float value) const
+	// set bottom
+	void b(const Ty b)
 	{
-		return x + GetIntervalLenght() * value;
-	}*/
+		edges[1] = b;
+	}
+
+	// set right
+	void r(const Ty r)
+	{
+		edges[2] = r;
+	}
+
+	// set top
+	void t(const Ty t)
+	{
+		edges[3] = t;
+	}
+
+	bool is_empty() const
+	{
+		bool empty = false;
+
+		if (l() == 0 && b() == 0 && r() == 0 && t() == 0)
+		{
+			empty = true;
+		}
+
+		return empty;
+	}
+
+	Ty width(const bool use_abs = false) const
+	{
+		Ty width = 0;
+		
+		if (use_abs == false)
+		{
+			if (l() > r())
+			{
+				throw std::logic_error("left > right");
+			}
+
+			width = r() - l();
+		}
+
+		if (use_abs == true)
+		{
+			width = std::abs(r() - l());
+		}
+		
+		return width;
+	}
+
+	Ty height(const bool use_abs = false) const
+	{
+		Ty height = 0;
+
+		if (use_abs == false)
+		{
+			if (b() > t())
+			{
+				throw std::logic_error("bottom > top");
+			}
+
+			height = t() - b();
+		}
+
+		if (use_abs == true)
+		{
+			height = std::abs(t() - b());
+		}
+
+		return height;
+	}
+
+	glm::vec<2, Ty> size(const bool use_abs = false) const
+	{
+		return glm::vec<2, Ty>(width(use_abs), height(use_abs));
+	}
+	
+	rect4 expand(const rect4& expand) const
+	{
+		rect4 expanded;
+		expanded.l(l() - expand.l());
+		expanded.b(b() - expand.b());
+		expanded.r(r() + expand.r());
+		expanded.t(t() + expand.t());
+		return expanded;
+	}
+
+	rect4 reduce(const rect4& reduce) const
+	{
+		rect4 reduced;
+		reduced.l(l() + reduce.l());
+		reduced.b(b() + reduce.b());
+		reduced.r(r() - reduce.r());
+		reduced.t(t() - reduce.t());
+		return reduced;
+	}
+
+	rect4 scale(const Ty factor) const
+	{
+		float half_width_diff = ((width() * factor) - width()) / static_cast<Ty>(2);
+		float half_height_diff = ((height() * factor) - height()) / static_cast<Ty>(2);
+		
+		rect4 scaled = expand(rect4(half_width_diff, half_width_diff, half_height_diff, half_height_diff));
+		return scaled;
+	}
+
+	glm::vec<2, Ty> center() const
+	{
+		return glm::vec<2, Ty>(l() + width() / static_cast<Ty>(2), b() + height() / static_cast<Ty>(2));
+	}
+	
+	glm::vec<2, Ty> lb() const
+	{
+		return glm::vec<2, Ty>(l(), b());
+	}
+
+	glm::vec<2, Ty> rb() const
+	{
+		return glm::vec<2, Ty>(r(), b());
+	}
+
+	glm::vec<2, Ty> lt() const
+	{
+		return glm::vec<2, Ty>(l(), t());
+	}
+
+	glm::vec<2, Ty> rt() const
+	{
+		return glm::vec<2, Ty>(r(), t());
+	}
+
+private:
+	
+	std::array<Ty, 4> edges;
 };
 
+using rect4f = rect4<float>;
 
-template <typename Ty0>
+
+
+template <typename Ty>
 class val4
 {
 public:
@@ -96,235 +246,29 @@ public:
 		val{ 0, 0, 0, 0 }
 	{}
 
-	val4(const std::array<Ty0, 4>& val) :
+	val4(const std::array<Ty, 4>& val) :
 		val(val)
 	{}
 
-	Ty0 Lenght(const size_t from, const size_t to) const
+	Ty Lenght(const size_t from, const size_t to) const
 	{
 		return val[to] - val[from];
 	}
 
-	Ty0& operator[](size_t index)
+	Ty& operator[](size_t index)
 	{
 		return val[index];
 	}
 
-	Ty0 operator[](size_t index) const
+	Ty operator[](size_t index) const
 	{
 		return val[index];
 	}
 
 private:
 
-	std::array<Ty0, 4> val;
+	std::array<Ty, 4> val;
 };
 
 using val4f = val4<float>;
-
-
-template <typename Ty0>
-class rect4
-{
-public:
-	rect4() :
-		l(0),
-		b(0),
-		r(0),
-		t(0)
-	{}
-
-	// Left, Bottom, Right, Top
-	rect4(const Ty0 l, const Ty0 b, const Ty0 r, const Ty0 t) :
-		l(l),
-		b(b),
-		r(r),
-		t(t)
-	{}
-	
-	rect4(const Ty0 width, const Ty0 height)
-	{
-		Ty0 operand = static_cast<Ty0>(2);
-		l = -width / operand;
-		b = -height / operand;
-		r = width / operand;
-		t = height / operand;
-	}
-
-	rect4(const Vec2& lt, const Vec2& rb)
-	{
-		l = lt.x;
-		b = rb.y;
-		r = rb.x;
-		t = lt.y;
-	}
-
-	// Left
-	Ty0 L() const
-	{
-		return l;
-	}
-
-	// Bottom
-	Ty0 B() const
-	{
-		return b;
-	}
-
-	// Right
-	Ty0 R() const
-	{
-		return r;
-	}
-
-	// Top
-	Ty0 T() const
-	{
-		return t;
-	}
-
-	// Set Left
-	void L(const Ty0 l)
-	{
-		this->l = l;
-	}
-
-	// Set Bottom
-	void B(const Ty0 b)
-	{
-		this->b = b;
-	}
-
-	// Set Right
-	void R(const Ty0 r)
-	{
-		this->r = r;
-	}
-
-	// Set Top
-	void T(const Ty0 t)
-	{
-		this->t = t;
-	}
-
-	Ty0 Width(bool use_abs = false) const
-	{
-		Ty0 width = 0;
-		
-		if (use_abs == false)
-		{
-			if (l > r)
-			{
-				throw std::logic_error("left > right");
-			}
-
-			width = r - l;
-		}
-
-		if (use_abs == true)
-		{
-			width = std::abs(r - l);
-		}
-		
-		return width;
-	}
-
-	bool IsEmpty()
-	{
-		bool is_empty = false;
-		if (l == 0 && b == 0 && r == 0 && t == 0)
-		{
-			is_empty = true;
-		}
-
-		return is_empty;
-	}
-
-	Ty0 Height(bool use_abs = false) const
-	{
-		Ty0 height = 0;
-
-		if (use_abs == false)
-		{
-			if (b > t)
-			{
-				throw std::logic_error("bottom > top");
-			}
-
-			height = t - b;
-		}
-
-		if (use_abs == true)
-		{
-			height = std::abs(t - b);
-		}
-
-		return height;
-	}
-
-	Vec2 Size(bool use_abs = false) const
-	{
-		return Vec2(Width(use_abs), Height(use_abs));
-	}
-	
-	rect4 Expand(const rect4& expand) const
-	{
-		rect4 expanded;
-		expanded.L(l - expand.l);
-		expanded.B(b - expand.b);
-		expanded.R(r + expand.r);
-		expanded.T(t + expand.t);
-		return expanded;
-	}
-
-	rect4 Reduce(const rect4& reduce) const
-	{
-		rect4 reduced;
-		reduced.L(l + reduce.l);
-		reduced.B(b + reduce.b);
-		reduced.R(r - reduce.r);
-		reduced.T(t - reduce.t);
-		return reduced;
-	}
-
-	rect4 Scale(const Ty0 factor) const
-	{
-		float half_width_diff = ((Width() * factor) - Width()) / static_cast<Ty0>(2);
-		float half_height_diff = ((Height() * factor) - Height()) / static_cast<Ty0>(2);
-		
-		rect4 scaled = Expand(rect4(half_width_diff, half_width_diff, half_height_diff, half_height_diff));
-		return scaled;
-	}
-
-	Vec2 Center() const
-	{
-		return Vec2(l + Width() / static_cast<Ty0>(2), b + Height() / static_cast<Ty0>(2));
-	}
-	
-	Vec2 LB() const
-	{
-		return Vec2(l, b);
-	}
-	Vec2 RB() const
-	{
-		return Vec2(r, b);
-	}
-	Vec2 LT() const
-	{
-		return Vec2(l, t);
-	}
-	Vec2 RT() const
-	{
-		return Vec2(r, t);
-	}
-
-private:
-	Ty0 l;
-	Ty0 b;
-	Ty0 r;
-	Ty0 t;
-};
-
-using rect4f = rect4<float>;
-
 

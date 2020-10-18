@@ -23,6 +23,10 @@ See <https://www.gnu.org/licenses/gpl-2.0.txt>.
 #include "random_samples.h"
 #include "plot.h"
 
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+
 #include "Resource.h"
 
 #include <boost/math/distributions.hpp>
@@ -131,8 +135,8 @@ int main(int argc, char *argv[])
 
 		const auto fm_size = glfw_interface.GetFrambufferSize();
 
-		ImGui::SetNextWindowPos(Vec2(static_cast<float>(fm_size[0]) / 2.f, 0), ImGuiCond_Always);
-		ImGui::SetNextWindowSize(Vec2(static_cast<float>(fm_size[0]) / 2.f, static_cast<float>(fm_size[1])), ImGuiCond_Always);
+		ImGui::SetNextWindowPos(glm::vec2(static_cast<float>(fm_size[0]) / 2.f, 0), ImGuiCond_Always);
+		ImGui::SetNextWindowSize(glm::vec2(static_cast<float>(fm_size[0]) / 2.f, static_cast<float>(fm_size[1])), ImGuiCond_Always);
 		ImGui::Begin("User Input", &open_all, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 
 		ImGui::Text("%.2f ms/frame (%.2f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
@@ -392,7 +396,7 @@ int main(int argc, char *argv[])
 
 
 		ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
-		ImGui::SetNextWindowSize(Vec2(static_cast<float>(fm_size[0]) / 2.f, static_cast<float>(fm_size[1])), ImGuiCond_Always);
+		ImGui::SetNextWindowSize(glm::vec2(static_cast<float>(fm_size[0]) / 2.f, static_cast<float>(fm_size[1])), ImGuiCond_Always);
 		ImGui::Begin("Plot", &open_all, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 
 		plot.SetCanvasRect();
