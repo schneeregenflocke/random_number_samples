@@ -3,6 +3,8 @@
 project(random_samples)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "CMAKE_EXPORT_COMPILE_COMMANDS" FORCE)
 
 
@@ -10,13 +12,14 @@ message("CMAKE_VERSION: ${CMAKE_VERSION}")
 message("CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")
 message("CMAKE_CXX_COMPILER_ID: ${CMAKE_CXX_COMPILER_ID}")
 
-add_executable(random_samples)
-
-
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
 	target_compile_options(random_samples PRIVATE "-mrdrnd")
 endif()
 
+
+### random_samples ##
+
+add_executable(random_samples)
 
 target_include_directories(random_samples PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
@@ -24,7 +27,7 @@ target_sources(random_samples PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/src/script.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/random_samples.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/rect4.h
-	${CMAKE_CURRENT_SOURCE_DIR}/src/umgui_utilities.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/transform.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/random_numbers.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/random_data_table.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/plot.h
@@ -71,9 +74,10 @@ target_link_libraries(random_samples PUBLIC glfw)
 
 
 ### imgui ###
+target_compile_definitions(random_samples PUBLIC IMGUI_USER_CONFIG=<custom_imconfig.h>)
 
 target_sources(random_samples PUBLIC 
-	${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui/imgui.h 
+	${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui/imgui.h
 	${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui/imgui.cpp
 
 	${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui/imgui_demo.cpp
