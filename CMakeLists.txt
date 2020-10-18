@@ -1,4 +1,4 @@
-﻿cmake_minimum_required (VERSION 3.8)
+﻿cmake_minimum_required(VERSION 3.8)
 
 project(random_samples)
 
@@ -17,16 +17,22 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
 	target_compile_options(random_samples PRIVATE "-mrdrnd")
 endif()
 
-#target_compile_definitions(random_samples PRIVATE IMGUI_USER_CONFIG=<ImGui_User_Config.h>)
 
 target_include_directories(random_samples PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
+target_sources(random_samples PUBLIC
+	${CMAKE_CURRENT_SOURCE_DIR}/src/script.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/random_samples.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/rect4.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/umgui_utilities.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/random_numbers.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/random_data_table.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/plot.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/histogram.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/glfw_include.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/file_io.h
+)
 
-file(GLOB SRC_FILES CONFIGURE_DEPENDS 
-	${CMAKE_CURRENT_SOURCE_DIR}/src/*.h 
-	${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
-
-target_sources(random_samples PUBLIC ${SRC_FILES})
 
 ### boost ###
 
@@ -43,13 +49,11 @@ message("Boost_LIBRARIES: ${Boost_LIBRARIES}")
 target_include_directories(random_samples PUBLIC ${Boost_INCLUDE_DIRS})
 target_link_directories(random_samples PUBLIC ${Boost_LIBRARY_DIRS})
 
-#find_package(OpenGL)
-#target_link_libraries(random_samples PUBLIC ${OPENGL_LIBRARIES})
-#target_include_directories(random_samples PUBLIC ${OPENGL_INCLUDE_DIRS})
 
 ### glad ###
 
 set(GLAD_PROFILE "core" CACHE STRING "OpenGL profile" FORCE)
+
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/submodules/glad")
 target_link_libraries(random_samples PUBLIC glad)
 
@@ -64,7 +68,6 @@ target_link_libraries(random_samples PUBLIC glm)
 
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/submodules/glfw")
 target_link_libraries(random_samples PUBLIC glfw)
-#target_include_directories(random_samples PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui)
 
 
 ### imgui ###
@@ -85,7 +88,7 @@ target_sources(random_samples PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui/backends/imgui_impl_glfw.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui/backends/imgui_impl_opengl3.h
 	${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui/backends/imgui_impl_opengl3.cpp
-	)
+)
 
 target_include_directories(random_samples PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui)
 target_include_directories(random_samples PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui/backends)
@@ -107,9 +110,7 @@ list(APPEND LICENSE_FILES_PATHS
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL Windows)
 	list(APPEND LICENSE_FILES_PATHS "${Boost_INCLUDE_DIRS}/LICENSE_1_0.txt" boost)
-endif()
-
-if(${CMAKE_SYSTEM_NAME} STREQUAL Linux)
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL Linux)
 	list(APPEND LICENSE_FILES_PATHS "/usr/share/licenses/boost/LICENSE_1_0.txt" boost)
 endif()
 
